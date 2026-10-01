@@ -1,0 +1,392 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appstate Management - SagorBot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 1rem;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.4);
+            border-radius: 20px;
+        }
+
+        textarea {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+
+        textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .success-message {
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .btn {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateX(-3px);
+        }
+
+        .tool-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .tool-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateX(5px);
+        }
+
+        .warning-box {
+            background: rgba(251, 191, 36, 0.2);
+            border: 2px solid rgba(251, 191, 36, 0.5);
+            border-radius: 12px;
+            animation: warningPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes warningPulse {
+            0%, 100% { border-color: rgba(251, 191, 36, 0.5); }
+            50% { border-color: rgba(251, 191, 36, 0.8); }
+        }
+
+        .instruction-item {
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .instruction-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 0.5rem;
+            }
+
+            .glass-card {
+                border-radius: 15px;
+            }
+
+            .header-title {
+                font-size: 1.75rem !important;
+            }
+
+            textarea {
+                font-size: 0.875rem;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn-group button {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .grid-cols-2 {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="max-w-5xl mx-auto">
+        <div class="glass-card p-6 md:p-8 mb-6 md:mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <h1 class="header-title text-3xl md:text-4xl font-bold text-white mb-2">🔑 Appstate Management</h1>
+                    <p class="text-white/90 text-sm md:text-base">Update your Facebook account session</p>
+                </div>
+                <a href="/" class="btn-back text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 text-center relative z-10">
+                    ← Back to Dashboard
+                </a>
+            </div>
+        </div>
+
+        <!-- Success/Error Message -->
+        <div id="message" class="hidden mb-6"></div>
+
+        <!-- Appstate Form -->
+        <div class="glass-card p-6 md:p-8 mb-6 md:mb-8">
+            <div class="mb-6">
+                <h2 class="text-xl md:text-2xl font-bold text-white mb-4">📝 Submit Appstate</h2>
+                <p class="text-white/80 mb-4 text-sm md:text-base">Paste your Facebook appstate JSON below. This will update your bot's session.</p>
+                <div class="warning-box p-4 mb-6">
+                    <p class="text-yellow-200 text-sm">⚠️ <strong>Security Warning:</strong> Never share your appstate with anyone. It contains your session credentials.</p>
+                </div>
+            </div>
+
+            <form id="appstateForm" class="space-y-6">
+                <div>
+                    <label for="appstate" class="block text-white font-semibold mb-3 text-sm md:text-base">Appstate JSON:</label>
+                    <textarea 
+                        id="appstate" 
+                        name="appstate" 
+                        rows="12" 
+                        class="w-full rounded-xl p-4 resize-none text-sm md:text-base"
+                        placeholder='[{"key":"...", "value":"...", "domain":"...", "path":"...", "hostOnly":...}, ...]'
+                        required
+                    ></textarea>
+                    <p class="text-white/70 text-xs md:text-sm mt-2">Paste the complete appstate array from your account.txt or cookie file</p>
+                </div>
+
+                <div class="btn-group flex flex-col md:flex-row gap-4">
+                    <button 
+                        type="submit" 
+                        class="btn btn-primary flex-1 text-white font-bold py-4 px-6 rounded-xl relative z-10"
+                    >
+                        💾 Save Appstate
+                    </button>
+                    <button 
+                        type="button" 
+                        onclick="clearForm()" 
+                        class="btn btn-secondary text-white font-semibold py-4 px-6 rounded-xl relative z-10"
+                    >
+                        🗑️ Clear
+                    </button>
+                </div>
+            </form>
+
+            <!-- Helper Buttons -->
+            <div class="mt-8 pt-8 border-t border-white/20">
+                <h3 class="text-lg md:text-xl font-bold text-white mb-4">🛠️ Quick Tools</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button onclick="validateJSON()" class="tool-btn text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 text-left flex items-center gap-3 text-sm md:text-base">
+                        <span class="text-xl">✅</span> Validate JSON
+                    </button>
+                    <button onclick="formatJSON()" class="tool-btn text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 text-left flex items-center gap-3 text-sm md:text-base">
+                        <span class="text-xl">📐</span> Format JSON
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="glass-card p-6 md:p-8">
+            <h3 class="text-xl md:text-2xl font-bold text-white mb-6">📖 How to Get Appstate</h3>
+            <div class="space-y-2">
+                <div class="instruction-item text-white/90 text-sm md:text-base">
+                    <strong>1.</strong> Install a browser extension like "EditThisCookie" or "Cookie-Editor"
+                </div>
+                <div class="instruction-item text-white/90 text-sm md:text-base">
+                    <strong>2.</strong> Login to Facebook in your browser
+                </div>
+                <div class="instruction-item text-white/90 text-sm md:text-base">
+                    <strong>3.</strong> Export cookies as JSON format
+                </div>
+                <div class="instruction-item text-white/90 text-sm md:text-base">
+                    <strong>4.</strong> Copy the JSON array and paste it above
+                </div>
+                <div class="instruction-item text-white/90 text-sm md:text-base">
+                    <strong>5.</strong> Click "Save Appstate" to update your bot
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Persist the dashboard token (see /public/index.html for details).
+        (function persistToken() {
+            const urlToken = new URLSearchParams(window.location.search).get('token');
+            if (urlToken) {
+                sessionStorage.setItem('dashboardToken', urlToken);
+                const url = new URL(window.location.href);
+                url.searchParams.delete('token');
+                window.history.replaceState({}, '', url.toString());
+            }
+        })();
+
+        const form = document.getElementById('appstateForm');
+        const messageDiv = document.getElementById('message');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const appstate = document.getElementById('appstate').value.trim();
+            
+            if (!appstate) {
+                showMessage('Please enter appstate', 'error');
+                return;
+            }
+
+            try {
+                JSON.parse(appstate);
+            } catch (error) {
+                showMessage('Invalid JSON format. Please check your appstate.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/appstate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-dashboard-token': sessionStorage.getItem('dashboardToken') || ''
+                    },
+                    body: JSON.stringify({ appstate })
+                });
+
+                const data = await response.json();
+
+                if (response.status === 401) {
+                    showMessage('❌ Unauthorized: missing or invalid dashboard token. Reopen this page with ?token=YOUR_TOKEN', 'error');
+                } else if (response.ok) {
+                    showMessage('✅ Appstate saved successfully! Bot will restart automatically.', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 3000);
+                } else {
+                    showMessage('❌ Error: ' + (data.error || 'Failed to save appstate'), 'error');
+                }
+            } catch (error) {
+                showMessage('❌ Error: ' + error.message, 'error');
+            }
+        });
+
+        function showMessage(text, type) {
+            messageDiv.className = `success-message glass-card rounded-xl p-4 mb-6 ${
+                type === 'success' 
+                    ? 'bg-green-500/30 border-2 border-green-500/60 text-green-100' 
+                    : 'bg-red-500/30 border-2 border-red-500/60 text-red-100'
+            }`;
+            messageDiv.textContent = text;
+            messageDiv.classList.remove('hidden');
+        }
+
+        function clearForm() {
+            document.getElementById('appstate').value = '';
+            messageDiv.classList.add('hidden');
+        }
+
+        function validateJSON() {
+            const appstate = document.getElementById('appstate').value.trim();
+            if (!appstate) {
+                showMessage('Please enter appstate first', 'error');
+                return;
+            }
+            try {
+                JSON.parse(appstate);
+                showMessage('✅ Valid JSON format!', 'success');
+            } catch (error) {
+                showMessage('❌ Invalid JSON: ' + error.message, 'error');
+            }
+        }
+
+        function formatJSON() {
+            const appstate = document.getElementById('appstate').value.trim();
+            if (!appstate) {
+                showMessage('Please enter appstate first', 'error');
+                return;
+            }
+            try {
+                const formatted = JSON.stringify(JSON.parse(appstate), null, 2);
+                document.getElementById('appstate').value = formatted;
+                showMessage('✅ JSON formatted successfully!', 'success');
+            } catch (error) {
+                showMessage('❌ Invalid JSON: ' + error.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
