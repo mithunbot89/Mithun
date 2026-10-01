@@ -1,0 +1,423 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SagorBot Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 1rem;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.4);
+            border-radius: 20px;
+        }
+
+        .stat-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+
+        .stat-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 16px 48px 0 rgba(31, 38, 135, 0.6);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .pulse-animation {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .progress-bar {
+            height: 8px;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            background: linear-gradient(90deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-primary:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary:hover {
+            background: rgba(255, 255, 255, 0.4);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #ff5252, #dd4d5f);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .info-row:hover {
+            background: rgba(255, 255, 255, 0.05);
+            padding-left: 0.5rem;
+            border-radius: 8px;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateX(5px);
+        }
+
+        .emoji-icon {
+            font-size: 2.5rem;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 0.5rem;
+            }
+
+            .glass-card {
+                border-radius: 15px;
+            }
+
+            .header-title {
+                font-size: 1.75rem !important;
+            }
+
+            .stat-value {
+                font-size: 1.5rem !important;
+            }
+
+            .emoji-icon {
+                font-size: 2rem;
+            }
+
+            .btn-group {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn-group button,
+            .btn-group a {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .grid-cols-4 {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .grid-cols-2 {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        .loading {
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="max-w-7xl mx-auto">
+        <div class="glass-card p-6 md:p-8 mb-6 md:mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <h1 class="header-title text-3xl md:text-4xl font-bold text-white mb-2">🤖 SagorBot Dashboard</h1>
+                    <p class="text-white/90 text-sm md:text-base">Advanced Bot Management & System Monitor</p>
+                </div>
+                <div class="btn-group flex flex-col md:flex-row gap-3">
+                    <a href="/appstate" class="btn-primary text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 text-center relative z-10">
+                        🔑 Manage Appstate
+                    </a>
+                    <button onclick="restartBot()" class="btn-danger text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 relative z-10">
+                        🔄 Restart Bot
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
+            <div class="glass-card stat-card p-4 md:p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-white/90 text-xs md:text-sm font-medium">CPU Usage</span>
+                    <span class="emoji-icon">💻</span>
+                </div>
+                <div class="stat-value text-2xl md:text-3xl font-bold text-white mb-3" id="cpu">
+                    <span class="loading">0%</span>
+                </div>
+                <div class="progress-bar bg-white/20">
+                    <div id="cpu-bar" class="progress-fill bg-blue-400" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="glass-card stat-card p-4 md:p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-white/90 text-xs md:text-sm font-medium">Memory</span>
+                    <span class="emoji-icon">🧠</span>
+                </div>
+                <div class="stat-value text-2xl md:text-3xl font-bold text-white mb-3" id="memory">
+                    <span class="loading">0 MB</span>
+                </div>
+                <div class="progress-bar bg-white/20">
+                    <div id="memory-bar" class="progress-fill bg-green-400" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="glass-card stat-card p-4 md:p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-white/90 text-xs md:text-sm font-medium">Uptime</span>
+                    <span class="emoji-icon">⏱️</span>
+                </div>
+                <div class="stat-value text-2xl md:text-3xl font-bold text-white mb-3" id="uptime">
+                    <span class="loading">0h 0m</span>
+                </div>
+                <div class="text-white/70 text-xs md:text-sm">Running</div>
+            </div>
+
+            <div class="glass-card stat-card p-4 md:p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-white/90 text-xs md:text-sm font-medium">Status</span>
+                    <span class="emoji-icon pulse-animation">🟢</span>
+                </div>
+                <div class="stat-value text-2xl md:text-3xl font-bold text-green-400 mb-3">Online</div>
+                <div class="text-white/70 text-xs md:text-sm pulse-animation">Active</div>
+            </div>
+        </div>
+
+        <!-- Details Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            <div class="glass-card p-6 md:p-8">
+                <h2 class="text-xl md:text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                    📊 System Information
+                </h2>
+                <div class="space-y-1">
+                    <div class="info-row">
+                        <span class="text-white/80 text-sm md:text-base">Platform:</span>
+                        <span id="platform" class="font-semibold text-white text-sm md:text-base loading">Loading...</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="text-white/80 text-sm md:text-base">Node Version:</span>
+                        <span id="nodeVersion" class="font-semibold text-white text-sm md:text-base loading">Loading...</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="text-white/80 text-sm md:text-base">Total Memory:</span>
+                        <span id="totalMemory" class="font-semibold text-white text-sm md:text-base loading">Loading...</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="text-white/80 text-sm md:text-base">Architecture:</span>
+                        <span id="arch" class="font-semibold text-white text-sm md:text-base loading">Loading...</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="text-white/80 text-sm md:text-base">Free Memory:</span>
+                        <span id="freeMem" class="font-semibold text-white text-sm md:text-base loading">Loading...</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="text-white/80 text-sm md:text-base">CPU Cores:</span>
+                        <span id="cpuCores" class="font-semibold text-white text-sm md:text-base loading">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card p-6 md:p-8">
+                <h2 class="text-xl md:text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                    ⚙️ Quick Actions
+                </h2>
+                <div class="space-y-3">
+                    <button onclick="window.location.href='/appstate?token=' + encodeURIComponent(sessionStorage.getItem('dashboardToken') || '')" class="action-btn w-full text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 text-left flex items-center gap-3 text-sm md:text-base">
+                        <span class="text-xl">🔑</span> Update Appstate
+                    </button>
+                    <button onclick="refreshStats()" class="action-btn w-full text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 text-left flex items-center gap-3 text-sm md:text-base">
+                        <span class="text-xl">🔄</span> Refresh Stats
+                    </button>
+                    <button onclick="viewLogs()" class="action-btn w-full text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 text-left flex items-center gap-3 text-sm md:text-base">
+                        <span class="text-xl">📋</span> View Logs
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // The dashboard requires a token (set as config.dashBoard.token in config.json).
+        // Open this page as /?token=YOUR_TOKEN once; the token is then kept in
+        // sessionStorage (cleared when the tab closes) and sent on every request.
+        (function persistToken() {
+            const urlToken = new URLSearchParams(window.location.search).get('token');
+            if (urlToken) {
+                sessionStorage.setItem('dashboardToken', urlToken);
+                const url = new URL(window.location.href);
+                url.searchParams.delete('token');
+                window.history.replaceState({}, '', url.toString());
+            }
+        })();
+        function authHeaders(extra = {}) {
+            const token = sessionStorage.getItem('dashboardToken') || '';
+            return { ...extra, 'x-dashboard-token': token };
+        }
+
+        async function restartBot() {
+            if (confirm('Are you sure you want to restart the bot?')) {
+                try {
+                    const response = await fetch('/api/restart', { method: 'POST', headers: authHeaders() });
+                    const data = await response.json();
+                    if (response.status === 401) {
+                        alert('Unauthorized: missing or invalid dashboard token. Reopen this page with ?token=YOUR_TOKEN');
+                        return;
+                    }
+                    alert(data.message || 'Bot is restarting...');
+                } catch (error) {
+                    alert('Error restarting bot: ' + error.message);
+                }
+            }
+        }
+
+        async function refreshStats() {
+            try {
+                const response = await fetch('/api/stats', { headers: authHeaders() });
+                if (response.status === 401) {
+                    console.warn('Unauthorized: missing or invalid dashboard token.');
+                    return;
+                }
+                const data = await response.json();
+                
+                document.getElementById('cpu').textContent = data.cpu + '%';
+                document.getElementById('cpu-bar').style.width = data.cpu + '%';
+                
+                document.getElementById('memory').textContent = data.memoryUsed + ' MB';
+                document.getElementById('memory-bar').style.width = (data.memoryUsed / data.memoryTotal * 100) + '%';
+                
+                document.getElementById('uptime').textContent = data.uptime;
+                document.getElementById('platform').textContent = data.platform;
+                document.getElementById('nodeVersion').textContent = data.nodeVersion;
+                document.getElementById('totalMemory').textContent = data.memoryTotal + ' MB';
+                document.getElementById('arch').textContent = data.arch;
+                document.getElementById('freeMem').textContent = data.freeMem + ' MB';
+                document.getElementById('cpuCores').textContent = data.cpuCores;
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+            }
+        }
+
+        function viewLogs() {
+            alert('Logs feature coming soon!');
+        }
+        refreshStats();
+        setInterval(refreshStats, 5000);
+    </script>
+</body>
+</html>
