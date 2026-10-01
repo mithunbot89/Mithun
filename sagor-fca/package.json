@@ -1,0 +1,98 @@
+{
+  "name": "sagor-fca",
+  "version": "0.0.21",
+  "description": "Unofficial Facebook Chat API for Node.js - Interact with Facebook Messenger programmatically",
+  "main": "dist/cjs.cjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/cjs.cjs",
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "files": [
+    "dist/",
+    "docs/",
+    "README.md",
+    "test/",
+    "LICENSE",
+    "fca-config.example.json"
+  ],
+  "scripts": {
+    "test": "node ./test/fca.test.cjs",
+    "test:build": "npm run build && node ./test/fca.test.cjs",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.typecheck.json --noEmit",
+    "build": "tsup src/index.ts --format cjs,esm --dts --clean --out-dir dist --external gradient-string && node scripts/cjs-bridge.cjs",
+    "build:types": "tsc -p tsconfig.build.json --emitDeclarationOnly"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/habibuslam5-a11y/sagor-fca.git"
+  },
+  "keywords": [
+    "facebook",
+    "chat",
+    "api",
+    "messenger",
+    "bot",
+    "unofficial",
+    "automation",
+    "facebook-api",
+    "facebook-chat",
+    "facebook-messenger",
+    "chatbot",
+    "nodejs",
+    "fca"
+  ],
+  "author": {
+    "name": "SagoR",
+    "url": "https://www.facebook.com/SAGOR.69x"
+  },
+  "contributors": [
+    {
+      "name": "SagoR",
+      "url": "https://github.com/habibuslam5-a11y"
+    }
+  ],
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/habibuslam5-a11y/sagor-fca/issues"
+  },
+  "homepage": "https://github.com/habibuslam5-a11y/sagor-fca#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.20.0",
+    "axios-cookiejar-support": "^7.0.0",
+    "bluebird": "^3.7.2",
+    "cheerio": "^1.2.0",
+    "cli-progress": "^3.12.0",
+    "duplexify": "^4.1.3",
+    "gradient-string": "^3.0.0",
+    "https-proxy-agent": "^9.1.0",
+    "mqtt": "^4.3.8",
+    "ora": "^9.4.1",
+    "picocolors": "^1.1.1",
+    "sequelize": "^6.37.6",
+    "sqlite3": "^6.0.1",
+    "totp-generator": "^2.0.1",
+    "ws": "^8.22.0"
+  },
+  "devDependencies": {
+    "@types/cli-progress": "^3.11.6",
+    "@types/duplexify": "^3.6.5",
+    "@types/node": "^26.6.3",
+    "@types/ws": "^8.18.2",
+    "eslint": "^10.11.0",
+    "tsup": "^8.5.1",
+    "typescript": "^7.0.2"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}
